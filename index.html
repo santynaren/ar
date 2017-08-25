@@ -2,26 +2,88 @@
 <html>
 
 <head>
-    <title>AR</title>
-  <script src="https://aframe.io/releases/0.5.0/aframe.min.js"></script>
-  <script src="https://polideaplayground.github.io/WebAR/libs/aframe/aframe-ar.js"></script>
+
+    <title>Hello</title>
+    <script src="https://aframe.io/releases/0.6.1/aframe.min.js"></script>
+    <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/6c457479/aframe/build/aframe-ar.min.js"></script>
+    <script src="https://hammerjs.github.io/dist/hammer.js"></script>
+    <script src="https://unpkg.com/vue"></script>
+   
 </head>
 
-<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-    <a-scene embedded artoolkit='sourceType: webcam;'>
-        <a-marker url="https://rawgit.com/karanganesan/ar/master/patt.cat" type='pattern'>
-            <a-box id='box' position='0 0.5 0' material='opacity: 0.5; side: double; color:pink;'>
-            </a-box>
-        </a-marker>
-        <a-marker preset='kanji'>
-            <a-box position='0 0.5 0' material='opacity: 0.5; side: double;color:green;'>
-                <a-entity ply-model="src: #bb" rotation='-90 0 0' scale='0.02 0.02 0.02'>
-                    <a-animation attribute="rotation" to="360 0 0" dur="5000" easing='linear' repeat="indefinite"></a-animation>
-                </a-entity>
-            </a-box>
-        </a-marker>
-        <a-entity camera></a-entity>
+<body  style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+<div style='position: absolute; top: 10px; width:100%; text-align: center; z-index: 1; height: 100%' id="myElement">
+	<div id="vue-app">
+            <input type="range" @mousemove="myFuny" value="0" v-model="rotatey">
+            <input type="range" @mousemove="myFunscale" value="0" v-model="scaleup">
+            <button @click="up">up</button>
+            <button @click="down">down</button>
+        </div>    
+</div>
+    <a-scene embedded arjs>
+        <a-obj-model src="IronMan.obj" id="3dmodel"mtl="IronMan.mtl" scale="0.01 0.01 0.01" position="0 0 -5"></a-obj-model>
     </a-scene>
+    <script type="text/javascript">
+    var entityEl = document.getElementById("3dmodel")
+    new Vue({
+        el: '#vue-app',
+        data: {
+            rotatey: '',
+            scaleup: ''
+        },
+        methods: {
+            myFuny: function() {
+                entityEl.setAttribute('rotation', {
+                    y: this.rotatey * 3.6,
+                });
+                console.log(this.rotatey * 3.6);
+            },
+            myFunscale: function() {
+                entityEl.setAttribute('scale', {
+                    x: this.scaleup / 1000,
+                    y: this.scaleup / 1000,
+                    z: this.scaleup / 1000
+                });
+            },
+            up: function() {
+                var rawdata = entityEl.getAttribute('position');
+                JSON.stringify(rawdata);
+                console.log(rawdata.y);
+                entityEl.setAttribute('position', {
+                    x: 0,
+                    y: rawdata.y + 0.1,
+                    z: -5
+                });
+            },
+            down: function() {
+                var rawdata = entityEl.getAttribute('position');
+                JSON.stringify(rawdata);
+                console.log(rawdata.y);
+                entityEl.setAttribute('position', {
+                    x: 0,
+                    y: rawdata.y - 0.1,
+                    z: -5
+                });
+            }
+        }
+    });
+    </script>
+    <script type="text/javascript">
+    var myElement = document.getElementById("myElement");
+    var mc = new Hammer(myElement);
+    mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+    var wee = 0;
+    mc.on("panleft panright panup pandown tap press", function(ev) {
+        // myElement.textContent = ev.type + " gesture detected.";
+        if (ev.type == "panup") {
+            wee++;
+        }
+        if (ev.type == "pandown") {
+            wee--;
+        }
+        console.log(wee);
+    });
+    </script>
 </body>
 
 </html>
